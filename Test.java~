@@ -1,0 +1,11 @@
+// Program to run a test on the stego.java file
+import Stego.*;
+
+
+public class StegTest
+{
+	public static void main()
+	{
+		Steg.hideString("Test", "Test-image.bmp");
+	}
+}

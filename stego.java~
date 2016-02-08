@@ -47,7 +47,7 @@ You can assume that the images are all in the same directory as the java files
 public String hideString(String payload, String cover_filename)
 {
 	// Get the pixels from the image
-	byte[] pixels = 
+	byte[] pixels = ((DataBufferByte) cover_filename.getRaster().getDataBuffer()).getData();
 	System.out.println(pixels);
 return null;
 } 
