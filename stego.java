@@ -48,45 +48,31 @@ You can assume that the images are all in the same directory as the java files
 //TODO you must write this method
 public static String hideString(String payload, String cover_filename)
 {
-	// Load the cover image
-	BufferedImage img = null;
+	// Load the cover image on an input stream.
+	InputStream coverim = null;
+	int cover_image;
 	try {
-    		img = ImageIO.read(new File("Test-image.bmp"));
+		File img = new File(cover_filename);
+		coverim = new FileInputStream(img);
 	} catch (IOException e){
+		return "Failed to load cover image.";
+	}
+	
+	// Read the header data from the image.
+	for(int i = 0; i < 54; i++){
+	try {
+		cover_image = coverim.read();
+	} catch (IOException e){
+		return "Failed to move past header of image file.";
+	}
 	}
 
-	// Get image dimesions
-	int height = img.getHeight();
-	int width = img.getWidth();	
-
-	// Transform payload into a binary string
+	// Transform payload into a byte array
 	byte[] bytes = payload.getBytes();
-	String payloadbits = "";
-	for(int i = 0; i < bytes.length; i++){
-		payloadbits += (String.format("%8s", Integer.toBinaryString(bytes[i] & 0xFF)).replace(' ', '0'));	
-	}	
-
-	// Define the number of bits that need to be hidden
-	int NumBitsToHide = payloadbits.length();
-	// Define the number of bits stored in a pixel
-	int bitsperpixel = 3;
+	//byte imgbyte = (byte)cover_image;
+	System.out.println(imgbyte);
+	System.out.println(bytes);
 	
-	// Determine the number of pixels needed to hide payload
-	int pixelsNeeded = 0;
-	if(NumBitsToHide % bitsperpixel == 0){
-		pixelsNeeded = NumBitsToHide/bitsperpixel;
-	}
-	else{
-		pixelsNeeded = (NumBitsToHide/bitsperpixel) + 1;
-	}
-	
-
-	int RGB = img.getRGB(width - 1, height -1);
-
-	int blue = RGB & 0xff;
-	int green = (RGB & 0xff00) >> 8;
-	int red = (RGB & 0xff0000) >> 16;	
-
 	return null;
 }
 //TODO you must write this method
