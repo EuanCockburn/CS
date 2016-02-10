@@ -6,12 +6,6 @@ import java.awt.image.BufferedImage;
 public class stego
 {
 
-public static void main(String [] args)
-	{
-		// Provide a string and image to test hide string function
-		hideString("Test", "Test-image.bmp");
-	}
-
 /**
  * A constant to hold the number of bits per byte
  */
@@ -26,7 +20,13 @@ protected final int sizeBitsLength=32;
  */
 protected final int extBitsLength=64;
 
- 
+
+public static void main(String[] args)
+	{
+		// Provide a string and image to test hide string function
+		hideString("Test", "Test-image.bmp");
+	}
+
  /**
 Default constructor to create a steg object, doesn't do anything - so we actually don't need to declare it explicitly. Oh well. 
 */
@@ -54,7 +54,15 @@ public static String hideString(String payload, String cover_filename)
     		img = ImageIO.read(new File("Test-image.bmp"));
 	} catch (IOException e){
 	}
-	System.out.println(img);
+	//System.out.println(img);
+
+	// Get image dimesions
+	int height = img.getHeight();
+	int width = img.getWidth();
+
+	System.out.println(height)
+	System.out.println(width)	
+
 	return null;
 }
 //TODO you must write this method
