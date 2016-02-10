@@ -1,10 +1,12 @@
 import java.io.*;
 import java.util.*;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 
-class Steg
+public class stego
 {
 
-public void main()
+public static void main(String[] args)
 	{
 		// Provide a string and image to test hide string function
 		hideString("Test", "Test-image.bmp");
@@ -29,7 +31,7 @@ protected final int extBitsLength=64;
 Default constructor to create a steg object, doesn't do anything - so we actually don't need to declare it explicitly. Oh well. 
 */
 
-public Steg()
+public void Steg()
 {
 
 }
@@ -44,13 +46,17 @@ written out as a result of the successful hiding operation.
 You can assume that the images are all in the same directory as the java files
 */
 //TODO you must write this method
-public String hideString(String payload, String cover_filename)
+public static String hideString(String payload, String cover_filename)
 {
-	// Get the pixels from the image
-	byte[] pixels = 
-	System.out.println(pixels);
-return null;
-} 
+	// Load the cover image
+	BufferedImage img = null;
+	try {
+    		img = ImageIO.read(new File("Test-image.bmp"));
+	} catch (IOException e){
+	}
+	System.out.println(img);
+	return null;
+}
 //TODO you must write this method
 /**
 The extractString method should extract a string which has been hidden in the stegoimage
@@ -74,7 +80,7 @@ result of the successful hiding process
 */
 public String hideFile(String file_payload, String cover_image)
 {
-	
+	return null;
 }
 
 //TODO you must write this method
@@ -88,7 +94,7 @@ result of the successful extraction process
 public String extractFile(String stego_image)
 {
 
-
+	return null;
 }
 
 //TODO you must write this method
@@ -100,7 +106,7 @@ public String extractFile(String stego_image)
  */
 public int swapLsb(int bitToHide,int byt)
 {		
-	
+	return 0;
 }
 
 
