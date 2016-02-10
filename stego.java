@@ -60,8 +60,14 @@ public static String hideString(String payload, String cover_filename)
 	int height = img.getHeight();
 	int width = img.getWidth();
 
-	System.out.println(height);
-	System.out.println(width);	
+	//System.out.println(height);
+	//System.out.println(width);
+	
+
+	// Not sure what this 30, 30 is need to look it up, E
+	int RGB = img.getRGB(30, 30);
+
+	System.out.println(RGB);
 
 	return null;
 }
