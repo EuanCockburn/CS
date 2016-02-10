@@ -24,7 +24,7 @@ protected final int extBitsLength=64;
 public static void main(String[] args)
 	{
 		// Provide a string and image to test hide string function
-		hideString("Test", "Test-image.bmp");
+		hideString("Always bet on the Duke", "Test-image.bmp");
 	}
 
  /**
@@ -54,20 +54,38 @@ public static String hideString(String payload, String cover_filename)
     		img = ImageIO.read(new File("Test-image.bmp"));
 	} catch (IOException e){
 	}
-	//System.out.println(img);
 
 	// Get image dimesions
 	int height = img.getHeight();
-	int width = img.getWidth();
+	int width = img.getWidth();	
 
-	//System.out.println(height);
-	//System.out.println(width);
+	// Transform payload into a binary string
+	byte[] bytes = payload.getBytes();
+	String payloadbits = "";
+	for(int i = 0; i < bytes.length; i++){
+		payloadbits += (String.format("%8s", Integer.toBinaryString(bytes[i] & 0xFF)).replace(' ', '0'));	
+	}	
+
+	// Define the number of bits that need to be hidden
+	int NumBitsToHide = payloadbits.length();
+	// Define the number of bits stored in a pixel
+	int bitsperpixel = 3;
+	
+	// Determine the number of pixels needed to hide payload
+	int pixelsNeeded = 0;
+	if(NumBitsToHide % bitsperpixel == 0){
+		pixelsNeeded = NumBitsToHide/bitsperpixel;
+	}
+	else{
+		pixelsNeeded = (NumBitsToHide/bitsperpixel) + 1;
+	}
 	
 
-	// Not sure what this 30, 30 is need to look it up, E
-	int RGB = img.getRGB(30, 30);
+	int RGB = img.getRGB(width - 1, height -1);
 
-	System.out.println(RGB);
+	int blue = RGB & 0xff;
+	int green = (RGB & 0xff00) >> 8;
+	int red = (RGB & 0xff0000) >> 16;	
 
 	return null;
 }
