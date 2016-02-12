@@ -52,8 +52,7 @@ public static String hideString(String payload, String cover_filename)
 	InputStream coverim = null;
 	int cover_image;
 	try {
-		File img = new File(cover_filename);
-		coverim = new FileInputStream(img);
+		coverim = new FileInputStream(cover_filename);
 	} catch (IOException e){
 		return "Failed to load cover image.";
 	}
@@ -70,7 +69,7 @@ public static String hideString(String payload, String cover_filename)
 	// Transform payload into a byte array
 	byte[] bytes = payload.getBytes();
 	//byte imgbyte = (byte)cover_image;
-	System.out.println(imgbyte);
+	//System.out.println(imgbyte);
 	System.out.println(bytes);
 	
 	return null;
