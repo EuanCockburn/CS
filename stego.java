@@ -59,11 +59,11 @@ public static String hideString(String payload, String cover_filename)
 	
 	// Read the header data from the image.
 	for(int i = 0; i < 54; i++){
-	try {
-		cover_image = coverim.read();
-	} catch (IOException e){
-		return "Failed to move past header of image file.";
-	}
+		try {
+			cover_image = coverim.read();
+		} catch (IOException e){
+			return "Failed to move past header of image file.";
+		}
 	}
 
 	// Transform payload into a byte array
