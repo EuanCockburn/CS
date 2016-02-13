@@ -3,6 +3,11 @@ import java.util.*;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 
+
+/*
+* TODO: Remove all static definitions & main
+* */
+
 public class stego
 {
 
@@ -23,8 +28,12 @@ protected final int extBitsLength=64;
 
 public static void main(String[] args)
 	{
+		System.out.println(swapLsb(1, 200));
+		System.out.println(swapLsb(1, 199));
+		System.out.println(swapLsb(0, 200));
+		System.out.println(swapLsb(0, 199));
 		// Provide a string and image to test hide string function
-		hideString("Always bet on the Duke", "Test-image.bmp");
+		//hideString("Always bet on the Duke", "Test-image.bmp");
 	}
 
  /**
@@ -185,7 +194,7 @@ The extractString method should extract a string which has been hidden in the st
 @return a string which contains either the message which has been extracted or 'Fail' which indicates the extraction
 was unsuccessful
 */
-public String extractString(String stego_image)
+public static String extractString(String stego_image)
 {
 return null;
 }
@@ -199,7 +208,7 @@ The hideFile method hides any file (so long as there's enough capacity in the im
 @return String - either 'Fail' to indicate an error in the hiding process, or the name of the stego image written out as a
 result of the successful hiding process
 */
-public String hideFile(String file_payload, String cover_image)
+public static String hideFile(String file_payload, String cover_image)
 {
 	return null;
 }
@@ -212,7 +221,7 @@ The extractFile method hides any file (so long as there's enough capacity in the
 @return String - either 'Fail' to indicate an error in the extraction process, or the name of the file written out as a
 result of the successful extraction process
 */
-public String extractFile(String stego_image)
+public static String extractFile(String stego_image)
 {
 
 	return null;
@@ -225,9 +234,9 @@ public String extractFile(String stego_image)
  * @param byt - the current byte
  * @return the altered byte
  */
-public int swapLsb(int bitToHide,int byt)
-{		
-	return 0;
+public static int swapLsb(int bitToHide,int byt)
+{
+	return byt - byt%2 + bitToHide;
 }
 
 
