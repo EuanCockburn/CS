@@ -28,13 +28,9 @@ protected final int extBitsLength=64;
 
 public static void main(String[] args)
 	{
-		System.out.println(swapLsb(1, 200));
-		System.out.println(swapLsb(1, 199));
-		System.out.println(swapLsb(0, 200));
-		System.out.println(swapLsb(0, 199));
-		System.out.println(bit_shifter(117,2));
+
 		// Provide a string and image to test hide string function
-		//hideString("Always bet on the Duke", "Test-image.bmp");
+		hideString("Always bet on the Duke", "Test-image.bmp");
 	}
 
  /**
@@ -110,14 +106,11 @@ public static String hideString(String payload, String cover_filename)
 	for(int i = 0; i < cf.length(); i++){
 		try {
 			cover_image = coverim.read();
-
-
-
-			coverim_mod.write(cover_image);
-			//payload_hidden.add(cover_image);
 			System.out.println(i);
-			/*if (i < 54){
-				payload_hidden.add(cover_image);
+			//payload_hidden.add(cover_image);
+			if (i < 54){
+				coverim_mod.write(cover_image);
+//				payload_hidden.add(cover_image);
 			}
 			else {
 				//
@@ -125,33 +118,36 @@ public static String hideString(String payload, String cover_filename)
 					message_hidden = true;
 				}
 				if (message_hidden){
-					payload_hidden.add(cover_image);
+					coverim_mod.write(cover_image);
+					//payload_hidden.add(cover_image);
 				} else {
 					int lsb;
-					int curr_pBitVal = payload_bytes[curr_byte2hide].toCharArray()[curr_bit2hide%8];
-					if (cover_image%2 == 0){
-						if (curr_pBitVal == 0){
-							payload_hidden.add(cover_image);
-						}
-						else{
-							//flip lsb then add
-						}
-						//payload_hidden.add(cover_image);
-					} else {
-						if (curr_pBitVal == 0){
-							//flip lsb then add
-						}
-						else{
-							payload_hidden.add(cover_image);
-						}
-					}
+
+					int curr_pBitVal = bit_shifter(payload_bytes[curr_byte2hide],curr_bit2hide%8);
+					coverim_mod.write(swapLsb(curr_pBitVal, cover_image));
+//					if (cover_image%2 == 0){
+//						if (curr_pBitVal == 0){
+//							payload_hidden.add(cover_image);
+//						}
+//						else{
+//							//flip lsb then add
+//						}
+//						//payload_hidden.add(cover_image);
+//					} else {
+//						if (curr_pBitVal == 0){
+//							//flip lsb then add
+//						}
+//						else{
+//							payload_hidden.add(cover_image);
+//						}
+//					}
 					curr_bit2hide = curr_bit2hide + 1;
 					if (curr_bit2hide%8 == 0){
 						curr_byte2hide += 1;
 					}
 				}
 				//payload_hidden.add(cover_image);
-			}*/
+			}
 		} catch (IOException e){
 			return "Fail: unable to move past header of image file.";
 		}
