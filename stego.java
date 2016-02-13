@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 import javax.imageio.ImageIO;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
 
 public class stego
 {
@@ -48,23 +48,102 @@ You can assume that the images are all in the same directory as the java files
 //TODO you must write this method
 public static String hideString(String payload, String cover_filename)
 {
-	// Open image as a file and initialise the bufferedimage variable
-	File imgpath;
-	BufferedImage coverim = null;
-	imgpath = new File(cover_filename);
-	
-	// Read through head of image, assuming 54 byte image head
-	for(int i = 0; i < 54; i++){
-		try {
-			coverim = ImageIO.read(imgpath);
-		} catch (IOException e){
-			System.out.println("Fail: Failed to read cover image on iteration: " + i);
-		}
-		WritableRaster raster = coverim.getRaster();
-		DataBufferByte coverbytes = (DataBufferByte) raster.getDataBuffer();
-		System.out.println(coverbytes.getData());
+	//setup file object for getting the size of it
+	File cf = new File(cover_filename);
+	long cf_lsb_can_hide = cf.length() - 54;
+	byte[] payload_bytes = payload.getBytes();
+	int bits_to_hide = (payload_bytes.length)*8;
+	int curr_byte2hide = 0;
+	int curr_bit2hide = 0;
+	boolean message_hidden = false;
+	//if trying to hide more bits than available lsb's, stop
+	if (bits_to_hide > cf_lsb_can_hide){
+		return "Fail: " + payload + " was too big for " + cover_filename;
+	}
+	ArrayList<Integer> payload_hidden = new ArrayList<Integer>();
+	// Load the cover image on an input stream.
+	InputStream coverim = null;
+	int cover_image;
+	try {
+		coverim = new FileInputStream(cover_filename);
+	} catch (IOException e){
+		return "Fail: couldn't load cover image.";
 	}
 
+	/*// Read the header data from the image.
+	for(int i = 0; i < 54; i++){
+		try {
+			cover_image = coverim.read();
+			payload_hidden.add(cover_image);
+		} catch (IOException e){
+			return "Fail: unable to move past header of image file.";
+		}
+	}*/
+
+	for(int i = 0; i < cf.length(); i++){
+		try {
+			cover_image = coverim.read();
+			payload_hidden.add(cover_image);
+			System.out.println(i);
+			/*if (i < 54){
+				payload_hidden.add(cover_image);
+			}
+			else {
+				//
+				if(curr_byte2hide == payload_bytes.length){
+					message_hidden = true;
+				}
+				if (message_hidden){
+					payload_hidden.add(cover_image);
+				} else {
+					int lsb;
+					int curr_pBitVal = payload_bytes[curr_byte2hide].toCharArray()[curr_bit2hide%8];
+					if (cover_image%2 == 0){
+						if (curr_pBitVal == 0){
+							payload_hidden.add(cover_image);
+						}
+						else{
+							//flip lsb then add
+						}
+						//payload_hidden.add(cover_image);
+					} else {
+						if (curr_pBitVal == 0){
+							//flip lsb then add
+						}
+						else{
+							payload_hidden.add(cover_image);
+						}
+					}
+					curr_bit2hide = curr_bit2hide + 1;
+					if (curr_bit2hide%8 == 0){
+						curr_byte2hide += 1;
+					}
+				}
+				//payload_hidden.add(cover_image);
+			}*/
+		} catch (IOException e){
+			return "Fail: unable to move past header of image file.";
+		}
+	}
+
+	//BMDK: - just testing what is coming out of read()
+	/*cover_image = 1;
+	int count = 0;
+	while(cover_image > 0){
+		try {
+			cover_image = coverim.read();
+			System.out.println(cover_image);
+			count += 1;
+		} catch (IOException e){
+			return "Failed to move past header of image file.";
+		}
+	}*/
+	//Are we getting 1 or 3 bites? 1channel vs R, G & B
+	/*System.out.println(count);
+	System.out.println(cf_lsb_can_hide);
+	System.out.println(bits_to_hide);
+	System.out.println(payload_hidden.size());*/
+	System.out.println(payload_hidden.size());
 	// Transform payload into a byte array
 	byte[] bytes = payload.getBytes();
 	//byte imgbyte = (byte)cover_image;
