@@ -66,7 +66,7 @@ public static String hideString(String payload, String cover_filename)
 	if (bits_to_hide > cf_lsb_can_hide){
 		return "Fail: " + payload + " was too big for " + cover_filename;
 	}
-	ArrayList<Integer> payload_hidden = new ArrayList<Integer>();
+
 	// Load the cover image on an input stream.
 	InputStream coverim = null;
 	int cover_image;
@@ -86,74 +86,41 @@ public static String hideString(String payload, String cover_filename)
 			file_mod.createNewFile();
 		}
 
-
-
-
 	} catch (IOException e){
 		return "Fail: some issue creating output stream.";
 	}
 
-	/*// Read the header data from the image.
-	for(int i = 0; i < 54; i++){
-		try {
-			cover_image = coverim.read();
-			payload_hidden.add(cover_image);
-		} catch (IOException e){
-			return "Fail: unable to move past header of image file.";
-		}
-	}*/
 	// Determine the size of the payload to be hidden
 	String payload_size = String.format("%032d", Integer.parseInt(Integer.toBinaryString(payload_bytes.length)));
 	int curr_char_pls = 0;
 	for(int i = 0; i < cf.length(); i++){
 		try {
 			cover_image = coverim.read();
-			//System.out.println(i);
-			//payload_hidden.add(cover_image);
+			
 			if (i < 54){
 				coverim_mod.write(cover_image);
-//				payload_hidden.add(cover_image);
+
 			}
 			else if (i >= 54 && i < 86){
-				coverim_mod.write(swapLsb((int)payload_size.charAt(curr_char_pls),cover_image));
-				System.out.println((int)payload_size.charAt(curr_char_pls));
+				coverim_mod.write(swapLsb(Character.getNumericValue(payload_size.charAt(curr_char_pls)),cover_image));
 				curr_char_pls++;
 			}
 			else {
-				//
 				if(curr_byte2hide == payload_bytes.length){
 					message_hidden = true;
 				}
 				if (message_hidden){
 					coverim_mod.write(cover_image);
-					//payload_hidden.add(cover_image);
 				} else {
 					int lsb;
 
 					int curr_pBitVal = bit_shifter(payload_bytes[curr_byte2hide],curr_bit2hide%8);
 					coverim_mod.write(swapLsb(curr_pBitVal, cover_image));
-//					if (cover_image%2 == 0){
-//						if (curr_pBitVal == 0){
-//							payload_hidden.add(cover_image);
-//						}
-//						else{
-//							//flip lsb then add
-//						}
-//						//payload_hidden.add(cover_image);
-//					} else {
-//						if (curr_pBitVal == 0){
-//							//flip lsb then add
-//						}
-//						else{
-//							payload_hidden.add(cover_image);
-//						}
-//					}
 					curr_bit2hide = curr_bit2hide + 1;
 					if (curr_bit2hide%8 == 0){
 						curr_byte2hide += 1;
 					}
 				}
-				//payload_hidden.add(cover_image);
 			}
 		} catch (IOException e){
 			return "Fail: unable to move past header of image file.";
@@ -166,31 +133,6 @@ public static String hideString(String payload, String cover_filename)
 	} catch(IOException e){
 		System.out.println("fuck off");
 	}
-
-
-	//BMDK: - just testing what is coming out of read()
-	/*cover_image = 1;
-	int count = 0;
-	while(cover_image > 0){
-		try {
-			cover_image = coverim.read();
-			System.out.println(cover_image);
-			count += 1;
-		} catch (IOException e){
-			return "Failed to move past header of image file.";
-		}
-	}*/
-	//Are we getting 1 or 3 bites? 1channel vs R, G & B
-	/*System.out.println(count);
-	System.out.println(cf_lsb_can_hide);
-	System.out.println(bits_to_hide);
-	System.out.println(payload_hidden.size());*/
-	System.out.println(payload_hidden.size());
-	// Transform payload into a byte array
-	byte[] bytes = payload.getBytes();
-	//byte imgbyte = (byte)cover_image;
-	//System.out.println(imgbyte);
-	System.out.println(bytes);
 	
 	return null;
 }
