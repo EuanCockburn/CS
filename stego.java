@@ -103,8 +103,8 @@ public static String hideString(String payload, String cover_filename)
 		}
 	}*/
 	// Determine the size of the payload to be hidden
-	String payload_size = String.format("%032d", Integer.parseInt(Integer.toBinaryString(payload_bytes.length))));
-
+	String payload_size = String.format("%032d", Integer.parseInt(Integer.toBinaryString(payload_bytes.length)));
+	int curr_char_pls = 0;
 	for(int i = 0; i < cf.length(); i++){
 		try {
 			cover_image = coverim.read();
@@ -113,6 +113,11 @@ public static String hideString(String payload, String cover_filename)
 			if (i < 54){
 				coverim_mod.write(cover_image);
 //				payload_hidden.add(cover_image);
+			}
+			else if (i >= 54 && i < 86){
+				coverim_mod.write(swapLsb((int)payload_size.charAt(curr_char_pls),cover_image));
+				System.out.println((int)payload_size.charAt(curr_char_pls));
+				curr_char_pls++;
 			}
 			else {
 				//
