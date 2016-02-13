@@ -183,8 +183,8 @@ public String extractString(String stego_image)
 		try{
 			steg_image = stegim.read();
 			binMessage += (steg_image%2);
-			if(i%byteLength == 0){
-				int charcode = Integer.parseInt(binMessage, 2);
+			if(binMessage.length() == 8){
+				int charcode = Integer.parseInt(binMessage + "0", 2);
 				System.out.println("Charcode: " + charcode);
 				//System.out.println((char)charcode);
 				message += (char)charcode;
