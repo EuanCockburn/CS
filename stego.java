@@ -2,6 +2,7 @@ import java.io.*;
 import java.util.*;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.nio.charset.StandardCharsets;
 
 public class stego
 {
@@ -48,7 +49,7 @@ public String hideString(String payload, String cover_filename)
 	//setup file object for getting the size of it
 	File cf = new File(cover_filename);
 	long cf_lsb_can_hide = cf.length() - sizeBitsLength - sizeHeaderLength;
-	byte[] payload_bytes = payload.getBytes();
+	byte[] payload_bytes = payload.getBytes(StandardCharsets.US_ASCII);
 	int bytes_to_hide = payload_bytes.length;
 	int bits_to_hide = bytes_to_hide*byteLength;
 	int curr_byte2hide = 0;
@@ -182,7 +183,7 @@ public String extractString(String stego_image)
 	for(int i = 0; i < payLoadSize * byteLength; i++){
 		try{
 			steg_image = stegim.read();
-			binMessage += (steg_image%2);
+			binMessage = (steg_image%2) + binMessage;
 			if(binMessage.length() == 8){
 				int charcode = Integer.parseInt(binMessage, 2);
 				System.out.println("Charcode: " + charcode);
