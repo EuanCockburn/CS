@@ -86,7 +86,7 @@ public String hideString(String payload, String cover_filename)
 				j++;
 			}
 		}catch(IOException e){
-			System.out.println("Fail: couldn't create output file.");
+			return "Fail: couldn't create output file.";
 		}
 
 	}
@@ -123,7 +123,6 @@ public String hideString(String payload, String cover_filename)
 
 					int curr_pBitVal = bit_shifter(payload_bytes[curr_byte2hide],curr_bit2hide%8);
 					coverim_mod.write(swapLsb(curr_pBitVal, cover_image));
-					System.out.println("Writing out: " + swapLsb(curr_pBitVal, cover_image));
 					curr_bit2hide = curr_bit2hide + 1;
 					if (curr_bit2hide%byteLength == 0){
 						curr_byte2hide += 1;
@@ -186,17 +185,13 @@ public String extractString(String stego_image)
 			binMessage = (steg_image%2) + binMessage;
 			if(binMessage.length() == 8){
 				int charcode = Integer.parseInt(binMessage, 2);
-				System.out.println("Charcode: " + charcode);
-				//System.out.println((char)charcode);
 				message += (char)charcode;
-				System.out.println("Binary message: " + binMessage);
 				binMessage = "";
 			}
 		} catch (IOException e){
 			return "Fail: unable to read image.";
 		}
 	}
-	//System.out.println(payLoadSize);
 	return message;
 }
 
@@ -241,7 +236,7 @@ public int swapLsb(int bitToHide,int byt)
 }
 
 /*
-* determining if current bit  to hide is 1 or 0
+* determining if current bit to hide is 1 or 0
 * */
 public int bit_shifter(int byte_x,int bit_idx)
 {
