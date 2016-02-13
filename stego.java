@@ -3,11 +3,6 @@ import java.util.*;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 
-
-/*
-* TODO: Remove all static definitions & main
-* */
-
 public class stego
 {
 
@@ -24,14 +19,10 @@ protected final int sizeBitsLength=32;
  * A constant to hold the number of bits used to store the extension of the file extracted
  */
 protected final int extBitsLength=64;
-
-
-public static void main(String[] args)
-	{
-
-		// Provide a string and image to test hide string function
-		System.out.println(hideString("September breeze, an island chill, the streets so quiet . . . still, seem wider now but soon they fill with gulls that stride and squawk and boldly walk the middle of the road— I wish I understood gull-talk perhaps they, too, feel harmony no crowds, no noise now once again just sand, waves, sky, and sea . . . just gulls and me September breeze, an island chill, the streets so quiet . . . still, seem wider now but soon they fill with gulls that stride and squawk and boldly walk the middle of the road— I wish I understood gull-talk perhaps they, too, feel harmony no crowds, no noise now once again just sand, waves, sky, and sea . . . just gulls and me", "Test-image.bmp"));
-	}
+/**
+ * A constant to hold the number of bits used to store the header size of a bmp
+ */
+protected final int sizeHeaderLength=54;
 
  /**
 Default constructor to create a steg object, doesn't do anything - so we actually don't need to declare it explicitly. Oh well. 
@@ -52,14 +43,14 @@ written out as a result of the successful hiding operation.
 You can assume that the images are all in the same directory as the java files
 */
 //TODO you must write this method
-public static String hideString(String payload, String cover_filename)
+public String hideString(String payload, String cover_filename)
 {
 	//setup file object for getting the size of it
 	File cf = new File(cover_filename);
-	long cf_lsb_can_hide = cf.length() - 86;
+	long cf_lsb_can_hide = cf.length() - sizeBitsLength - sizeHeaderLength;
 	byte[] payload_bytes = payload.getBytes();
 	int bytes_to_hide = payload_bytes.length;
-	int bits_to_hide = bytes_to_hide*8;
+	int bits_to_hide = bytes_to_hide*byteLength;
 	int curr_byte2hide = 0;
 	int curr_bit2hide = 0;
 	boolean message_hidden = false;
@@ -81,10 +72,10 @@ public static String hideString(String payload, String cover_filename)
 	File file_mod = null;
 	int j = 0;
 	boolean FileExists = true;
-
+	String modifiedimagename = "";
 	//find file to available file to save to
 	while (FileExists){
-		String modifiedimagename = "" + j + cover_filename;
+		modifiedimagename = "" + j + cover_filename;
 		try{
 			file_mod = new File(modifiedimagename);
 			if (!file_mod.exists()){
@@ -112,11 +103,11 @@ public static String hideString(String payload, String cover_filename)
 		try {
 			cover_image = coverim.read();
 			
-			if (i < 54){
+			if (i < sizeHeaderLength){
 				coverim_mod.write(cover_image);
 
 			}
-			else if (i >= 54 && i < 86){
+			else if (i >= sizeHeaderLength && i < (sizeHeaderLength + sizeBitsLength)){
 				coverim_mod.write(swapLsb(Character.getNumericValue(payload_size.charAt(curr_char_pls)),cover_image));
 				curr_char_pls++;
 			}
@@ -132,7 +123,7 @@ public static String hideString(String payload, String cover_filename)
 					int curr_pBitVal = bit_shifter(payload_bytes[curr_byte2hide],curr_bit2hide%8);
 					coverim_mod.write(swapLsb(curr_pBitVal, cover_image));
 					curr_bit2hide = curr_bit2hide + 1;
-					if (curr_bit2hide%8 == 0){
+					if (curr_bit2hide%byteLength == 0){
 						curr_byte2hide += 1;
 					}
 				}
@@ -149,7 +140,7 @@ public static String hideString(String payload, String cover_filename)
 		return "Fail: couldn't close off streams.";
 	}
 	
-	return "Success: Image output is modified.bmp";
+	return modifiedimagename;
 }
 //TODO you must write this method
 /**
@@ -158,7 +149,7 @@ The extractString method should extract a string which has been hidden in the st
 @return a string which contains either the message which has been extracted or 'Fail' which indicates the extraction
 was unsuccessful
 */
-public static String extractString(String stego_image)
+public String extractString(String stego_image)
 {
 return null;
 }
@@ -172,7 +163,7 @@ The hideFile method hides any file (so long as there's enough capacity in the im
 @return String - either 'Fail' to indicate an error in the hiding process, or the name of the stego image written out as a
 result of the successful hiding process
 */
-public static String hideFile(String file_payload, String cover_image)
+public String hideFile(String file_payload, String cover_image)
 {
 	return null;
 }
@@ -185,7 +176,7 @@ The extractFile method hides any file (so long as there's enough capacity in the
 @return String - either 'Fail' to indicate an error in the extraction process, or the name of the file written out as a
 result of the successful extraction process
 */
-public static String extractFile(String stego_image)
+public String extractFile(String stego_image)
 {
 
 	return null;
@@ -198,7 +189,7 @@ public static String extractFile(String stego_image)
  * @param byt - the current byte
  * @return the altered byte
  */
-public static int swapLsb(int bitToHide,int byt)
+public int swapLsb(int bitToHide,int byt)
 {
 	return byt - byt%2 + bitToHide;
 }
@@ -206,7 +197,7 @@ public static int swapLsb(int bitToHide,int byt)
 /*
 * determining if current bit  to hide is 1 or 0
 * */
-public static int bit_shifter(int byte_x,int bit_idx)
+public int bit_shifter(int byte_x,int bit_idx)
 {
 	return ((byte_x) >> bit_idx)%2;
 }
