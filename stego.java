@@ -102,11 +102,13 @@ public static String hideString(String payload, String cover_filename)
 			return "Fail: unable to move past header of image file.";
 		}
 	}*/
+	// Determine the size of the payload to be hidden
+	String payload_size = String.format("%032d", Integer.parseInt(Integer.toBinaryString(payload_bytes.length))));
 
 	for(int i = 0; i < cf.length(); i++){
 		try {
 			cover_image = coverim.read();
-			System.out.println(i);
+			//System.out.println(i);
 			//payload_hidden.add(cover_image);
 			if (i < 54){
 				coverim_mod.write(cover_image);
