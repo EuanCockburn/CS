@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 import javax.imageio.ImageIO;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
 
 public class stego
 {
@@ -19,13 +19,10 @@ protected final int sizeBitsLength=32;
  * A constant to hold the number of bits used to store the extension of the file extracted
  */
 protected final int extBitsLength=64;
-
-
-public static void main(String[] args)
-	{
-		// Provide a string and image to test hide string function
-		hideString("Always bet on the Duke", "Test-image.bmp");
-	}
+/**
+ * A constant to hold the number of bits used to store the header size of a bmp
+ */
+protected final int sizeHeaderLength=54;
 
  /**
 Default constructor to create a steg object, doesn't do anything - so we actually don't need to declare it explicitly. Oh well. 
@@ -46,33 +43,105 @@ written out as a result of the successful hiding operation.
 You can assume that the images are all in the same directory as the java files
 */
 //TODO you must write this method
-public static String hideString(String payload, String cover_filename)
+public String hideString(String payload, String cover_filename)
 {
-	// Load the cover image on an input stream.
-	//InputStream coverim = null;
-	File imgpath;
-	BufferedImage coverim = null;
-	imgpath = new File(cover_filename);
-	
-	// Read through head of image, assuming 54 byte image head
-	for(int i = 0; i < 54; i++){
-		try {
-			coverim = ImageIO.read(imgpath);
-		} catch (IOException e){
-			System.out.println("Fail: Failed to read cover image on iteration: " + i);
-		}
-		WritableRaster raster = coverim.getRaster();
-		DataBufferByte coverbytes = (DataBufferByte) raster.getDataBuffer();
-		System.out.println(coverbytes.getData());
+	//setup file object for getting the size of it
+	File cf = new File(cover_filename);
+	long cf_lsb_can_hide = cf.length() - sizeBitsLength - sizeHeaderLength;
+	byte[] payload_bytes = payload.getBytes();
+	int bytes_to_hide = payload_bytes.length;
+	int bits_to_hide = bytes_to_hide*byteLength;
+	int curr_byte2hide = 0;
+	int curr_bit2hide = 0;
+	boolean message_hidden = false;
+	//if trying to hide more bits than available lsb's, stop
+	if (bits_to_hide > cf_lsb_can_hide){
+		return "Fail: " + payload + " was too big for " + cover_filename;
 	}
 
-	// Transform payload into a byte array
-	byte[] bytes = payload.getBytes();
-	//byte imgbyte = (byte)cover_image;
-	//System.out.println(imgbyte);
-	System.out.println(bytes);
+	// Load the cover image on an input stream.
+	InputStream coverim = null;
+	int cover_image;
+	try {
+		coverim = new FileInputStream(cover_filename);
+	} catch (IOException e){
+		return "Fail: couldn't load cover image.";
+	}
+	//
+	FileOutputStream coverim_mod = null;
+	File file_mod = null;
+	int j = 0;
+	boolean FileExists = true;
+	String modifiedimagename = "";
+	//find file to available file to save to
+	while (FileExists){
+		modifiedimagename = "" + j + cover_filename;
+		try{
+			file_mod = new File(modifiedimagename);
+			if (!file_mod.exists()){
+				file_mod.createNewFile();
+				FileExists = false;
+			} else {
+				j++;
+			}
+		}catch(IOException e){
+			System.out.println("Fail: couldn't create output file.");
+		}
+
+	}
+	//try to set up the output stream
+	try {
+		coverim_mod = new FileOutputStream(file_mod);
+	} catch (IOException e){
+		return "Fail: some issue creating output stream.";
+	}
+
+	// Determine the size of the payload to be hidden
+	String payload_size = String.format("%032d", Integer.parseInt(Integer.toBinaryString(bytes_to_hide)));
+	int curr_char_pls = 0;
+	for(int i = 0; i < cf.length(); i++){
+		try {
+			cover_image = coverim.read();
+			
+			if (i < sizeHeaderLength){
+				coverim_mod.write(cover_image);
+
+			}
+			else if (i >= sizeHeaderLength && i < (sizeHeaderLength + sizeBitsLength)){
+				coverim_mod.write(swapLsb(Character.getNumericValue(payload_size.charAt(curr_char_pls)),cover_image));
+				curr_char_pls++;
+			}
+			else {
+				if(curr_byte2hide == bytes_to_hide){
+					message_hidden = true;
+				}
+				if (message_hidden){
+					coverim_mod.write(cover_image);
+				} else {
+					int lsb;
+
+					int curr_pBitVal = bit_shifter(payload_bytes[curr_byte2hide],curr_bit2hide%8);
+					coverim_mod.write(swapLsb(curr_pBitVal, cover_image));
+					System.out.println("Writing out: " + swapLsb(curr_pBitVal, cover_image));
+					curr_bit2hide = curr_bit2hide + 1;
+					if (curr_bit2hide%byteLength == 0){
+						curr_byte2hide += 1;
+					}
+				}
+			}
+		} catch (IOException e){
+			return "Fail: unable to move past header of image file.";
+		}
+	}
+	try{
+		coverim_mod.flush();
+		coverim_mod.close();
+		coverim.close();
+	} catch(IOException e){
+		return "Fail: couldn't close off streams.";
+	}
 	
-	return null;
+	return modifiedimagename;
 }
 //TODO you must write this method
 /**
@@ -83,7 +152,51 @@ was unsuccessful
 */
 public String extractString(String stego_image)
 {
-return null;
+	// Load the cover image on an input stream.
+	InputStream stegim = null;
+	int steg_image;
+	try {
+		stegim = new FileInputStream(stego_image);
+	} catch (IOException e){
+		return "Fail: couldn't load stego image.";
+	}
+	String messageSize = "";
+	for(int i = 0; i < (sizeHeaderLength + sizeBitsLength); i++){
+		try {
+			steg_image = stegim.read();
+
+			if (i >= sizeHeaderLength){
+				//coverim_mod.write(swapLsb(Character.getNumericValue(payload_size.charAt(curr_char_pls)),cover_image));
+				//curr_char_pls++;
+				messageSize += (steg_image%2);
+			}
+		}catch (IOException e){
+			return "Fail: unable to move past header of image file.";
+		}
+	}
+
+	int payLoadSize = Integer.parseInt(messageSize, 2);
+	
+	String message = "";
+	String binMessage = "";
+	for(int i = 0; i < payLoadSize * byteLength; i++){
+		try{
+			steg_image = stegim.read();
+			binMessage += (steg_image%2);
+			if(i%byteLength == 0){
+				int charcode = Integer.parseInt(binMessage, 2);
+				System.out.println("Charcode: " + charcode);
+				//System.out.println((char)charcode);
+				message += (char)charcode;
+				System.out.println("Binary message: " + binMessage);
+				binMessage = "";
+			}
+		} catch (IOException e){
+			return "Fail: unable to read image.";
+		}
+	}
+	//System.out.println(payLoadSize);
+	return message;
 }
 
 //TODO you must write this method
@@ -110,7 +223,7 @@ result of the successful extraction process
 */
 public String extractFile(String stego_image)
 {
-
+	
 	return null;
 }
 
@@ -122,8 +235,16 @@ public String extractFile(String stego_image)
  * @return the altered byte
  */
 public int swapLsb(int bitToHide,int byt)
-{		
-	return 0;
+{
+	return byt - byt%2 + bitToHide;
+}
+
+/*
+* determining if current bit  to hide is 1 or 0
+* */
+public int bit_shifter(int byte_x,int bit_idx)
+{
+	return ((byte_x) >> bit_idx)%2;
 }
 
 

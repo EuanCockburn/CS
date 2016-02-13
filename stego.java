@@ -122,6 +122,7 @@ public String hideString(String payload, String cover_filename)
 
 					int curr_pBitVal = bit_shifter(payload_bytes[curr_byte2hide],curr_bit2hide%8);
 					coverim_mod.write(swapLsb(curr_pBitVal, cover_image));
+					System.out.println("Writing out: " + swapLsb(curr_pBitVal, cover_image));
 					curr_bit2hide = curr_bit2hide + 1;
 					if (curr_bit2hide%byteLength == 0){
 						curr_byte2hide += 1;
@@ -151,7 +152,51 @@ was unsuccessful
 */
 public String extractString(String stego_image)
 {
-return null;
+	// Load the cover image on an input stream.
+	InputStream stegim = null;
+	int steg_image;
+	try {
+		stegim = new FileInputStream(stego_image);
+	} catch (IOException e){
+		return "Fail: couldn't load stego image.";
+	}
+	String messageSize = "";
+	for(int i = 0; i < (sizeHeaderLength + sizeBitsLength); i++){
+		try {
+			steg_image = stegim.read();
+
+			if (i >= sizeHeaderLength){
+				//coverim_mod.write(swapLsb(Character.getNumericValue(payload_size.charAt(curr_char_pls)),cover_image));
+				//curr_char_pls++;
+				messageSize += (steg_image%2);
+			}
+		}catch (IOException e){
+			return "Fail: unable to move past header of image file.";
+		}
+	}
+
+	int payLoadSize = Integer.parseInt(messageSize, 2);
+	
+	String message = "";
+	String binMessage = "";
+	for(int i = 0; i < payLoadSize * byteLength; i++){
+		try{
+			steg_image = stegim.read();
+			binMessage += (steg_image%2);
+			if(binMessage.length() == 8){
+				int charcode = Integer.parseInt(binMessage, 2);
+				System.out.println("Charcode: " + charcode);
+				//System.out.println((char)charcode);
+				message += (char)charcode;
+				System.out.println("Binary message: " + binMessage);
+				binMessage = "";
+			}
+		} catch (IOException e){
+			return "Fail: unable to read image.";
+		}
+	}
+	//System.out.println(payLoadSize);
+	return message;
 }
 
 //TODO you must write this method
@@ -178,7 +223,7 @@ result of the successful extraction process
 */
 public String extractFile(String stego_image)
 {
-
+	
 	return null;
 }
 
