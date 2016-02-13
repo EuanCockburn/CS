@@ -32,6 +32,7 @@ public static void main(String[] args)
 		System.out.println(swapLsb(1, 199));
 		System.out.println(swapLsb(0, 200));
 		System.out.println(swapLsb(0, 199));
+		System.out.println(bit_shifter(117,2));
 		// Provide a string and image to test hide string function
 		//hideString("Always bet on the Duke", "Test-image.bmp");
 	}
@@ -109,6 +110,9 @@ public static String hideString(String payload, String cover_filename)
 	for(int i = 0; i < cf.length(); i++){
 		try {
 			cover_image = coverim.read();
+
+
+
 			coverim_mod.write(cover_image);
 			//payload_hidden.add(cover_image);
 			System.out.println(i);
@@ -237,6 +241,14 @@ public static String extractFile(String stego_image)
 public static int swapLsb(int bitToHide,int byt)
 {
 	return byt - byt%2 + bitToHide;
+}
+
+/*
+* determining if current bit  to hide is 1 or 0
+* */
+public static int bit_shifter(int byte_x,int bit_idx)
+{
+	return ((byte_x) >> bit_idx)%2;
 }
 
 
