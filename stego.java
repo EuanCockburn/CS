@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
+import java.awt.image.*;
 
 public class stego
 {
@@ -48,22 +48,21 @@ You can assume that the images are all in the same directory as the java files
 //TODO you must write this method
 public static String hideString(String payload, String cover_filename)
 {
-	// Load the cover image on an input stream.
-	InputStream coverim = null;
-	int cover_image;
-	try {
-		coverim = new FileInputStream(cover_filename);
-	} catch (IOException e){
-		return "Failed to load cover image.";
-	}
+	// Open image as a file and initialise the bufferedimage variable
+	File imgpath;
+	BufferedImage coverim = null;
+	imgpath = new File(cover_filename);
 	
-	// Read the header data from the image.
+	// Read through head of image, assuming 54 byte image head
 	for(int i = 0; i < 54; i++){
 		try {
-			cover_image = coverim.read();
+			coverim = ImageIO.read(imgpath);
 		} catch (IOException e){
-			return "Failed to move past header of image file.";
+			System.out.println("Fail: Failed to read cover image on iteration: " + i);
 		}
+		WritableRaster raster = coverim.getRaster();
+		DataBufferByte coverbytes = (DataBufferByte) raster.getDataBuffer();
+		System.out.println(coverbytes.getData());
 	}
 
 	// Transform payload into a byte array
