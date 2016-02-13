@@ -69,6 +69,23 @@ public static String hideString(String payload, String cover_filename)
 	} catch (IOException e){
 		return "Fail: couldn't load cover image.";
 	}
+	//
+	FileOutputStream coverim_mod = null;
+	File file_mod;
+	try {
+		file_mod = new File("modified.bmp");
+		coverim_mod = new FileOutputStream(file_mod);
+
+		if (!file_mod.exists()){
+			file_mod.createNewFile();
+		}
+
+
+
+
+	} catch (IOException e){
+		return "Fail: some issue creating output stream.";
+	}
 
 	/*// Read the header data from the image.
 	for(int i = 0; i < 54; i++){
@@ -83,7 +100,8 @@ public static String hideString(String payload, String cover_filename)
 	for(int i = 0; i < cf.length(); i++){
 		try {
 			cover_image = coverim.read();
-			payload_hidden.add(cover_image);
+			coverim_mod.write(cover_image);
+			//payload_hidden.add(cover_image);
 			System.out.println(i);
 			/*if (i < 54){
 				payload_hidden.add(cover_image);
@@ -125,6 +143,14 @@ public static String hideString(String payload, String cover_filename)
 			return "Fail: unable to move past header of image file.";
 		}
 	}
+	try{
+		coverim_mod.flush();
+		coverim_mod.close();
+		coverim.close();
+	} catch(IOException e){
+		System.out.println("fuck off");
+	}
+
 
 	//BMDK: - just testing what is coming out of read()
 	/*cover_image = 1;
