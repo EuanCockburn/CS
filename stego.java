@@ -78,30 +78,32 @@ public static String hideString(String payload, String cover_filename)
 	}
 	//
 	FileOutputStream coverim_mod = null;
-	File file_mod;
+	File file_mod = null;
 	int j = 0;
-	boolean FileExists = false;
-	
-		while (!FileExists){
-			String modifiedimagename = j + cover_filename;
-			try {
+	boolean FileExists = true;
+
+	//find file to available file to save to
+	while (FileExists){
+		String modifiedimagename = "" + j + cover_filename;
+		try{
 			file_mod = new File(modifiedimagename);
-			coverim_mod = new FileOutputStream(file_mod);
 			if (!file_mod.exists()){
-				System.out.println("Creating file");
 				file_mod.createNewFile();
-				FileExists = true;
-				System.out.println("State of while condition: " + !FileExists);
+				FileExists = false;
+			} else {
+				j++;
 			}
-			else{
-				//System.out.println("Incrementing j");
-				j++;				
-			}
-			} catch (IOException e){
-				return "Fail: some issue creating output stream.";
-			}
+		}catch(IOException e){
+			System.out.println("Fail: couldn't create output file.");
 		}
-	
+
+	}
+	//try to set up the output stream
+	try {
+		coverim_mod = new FileOutputStream(file_mod);
+	} catch (IOException e){
+		return "Fail: some issue creating output stream.";
+	}
 
 	// Determine the size of the payload to be hidden
 	String payload_size = String.format("%032d", Integer.parseInt(Integer.toBinaryString(bytes_to_hide)));
