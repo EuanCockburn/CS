@@ -30,7 +30,7 @@ public static void main(String[] args)
 	{
 
 		// Provide a string and image to test hide string function
-		hideString("September breeze, an island chill, the streets so quiet . . . still, seem wider now but soon they fill with gulls that stride and squawk and boldly walk the middle of the road— I wish I understood gull-talk perhaps they, too, feel harmony no crowds, no noise now once again just sand, waves, sky, and sea . . . just gulls and me", "Test-image.bmp");
+		System.out.println(hideString("September breeze, an island chill, the streets so quiet . . . still, seem wider now but soon they fill with gulls that stride and squawk and boldly walk the middle of the road— I wish I understood gull-talk perhaps they, too, feel harmony no crowds, no noise now once again just sand, waves, sky, and sea . . . just gulls and me September breeze, an island chill, the streets so quiet . . . still, seem wider now but soon they fill with gulls that stride and squawk and boldly walk the middle of the road— I wish I understood gull-talk perhaps they, too, feel harmony no crowds, no noise now once again just sand, waves, sky, and sea . . . just gulls and me", "Test-image.bmp"));
 	}
 
  /**
@@ -79,17 +79,29 @@ public static String hideString(String payload, String cover_filename)
 	//
 	FileOutputStream coverim_mod = null;
 	File file_mod;
-	try {
-		file_mod = new File("modified.bmp");
-		coverim_mod = new FileOutputStream(file_mod);
-
-		if (!file_mod.exists()){
-			file_mod.createNewFile();
+	int j = 0;
+	boolean FileExists = false;
+	
+		while (!FileExists){
+			String modifiedimagename = j + cover_filename;
+			try {
+			file_mod = new File(modifiedimagename);
+			coverim_mod = new FileOutputStream(file_mod);
+			if (!file_mod.exists()){
+				System.out.println("Creating file");
+				file_mod.createNewFile();
+				FileExists = true;
+				System.out.println("State of while condition: " + !FileExists);
+			}
+			else{
+				//System.out.println("Incrementing j");
+				j++;				
+			}
+			} catch (IOException e){
+				return "Fail: some issue creating output stream.";
+			}
 		}
-
-	} catch (IOException e){
-		return "Fail: some issue creating output stream.";
-	}
+	
 
 	// Determine the size of the payload to be hidden
 	String payload_size = String.format("%032d", Integer.parseInt(Integer.toBinaryString(bytes_to_hide)));
@@ -135,7 +147,7 @@ public static String hideString(String payload, String cover_filename)
 		return "Fail: couldn't close off streams.";
 	}
 	
-	return null;
+	return "Success: Image output is modified.bmp";
 }
 //TODO you must write this method
 /**
