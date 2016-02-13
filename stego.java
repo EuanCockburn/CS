@@ -56,9 +56,10 @@ public static String hideString(String payload, String cover_filename)
 {
 	//setup file object for getting the size of it
 	File cf = new File(cover_filename);
-	long cf_lsb_can_hide = cf.length() - 54;
+	long cf_lsb_can_hide = cf.length() - 86;
 	byte[] payload_bytes = payload.getBytes();
-	int bits_to_hide = (payload_bytes.length)*8;
+	int bytes_to_hide = payload_bytes.length;
+	int bits_to_hide = bytes_to_hide*8;
 	int curr_byte2hide = 0;
 	int curr_bit2hide = 0;
 	boolean message_hidden = false;
@@ -91,7 +92,7 @@ public static String hideString(String payload, String cover_filename)
 	}
 
 	// Determine the size of the payload to be hidden
-	String payload_size = String.format("%032d", Integer.parseInt(Integer.toBinaryString(payload_bytes.length)));
+	String payload_size = String.format("%032d", Integer.parseInt(Integer.toBinaryString(bytes_to_hide)));
 	int curr_char_pls = 0;
 	for(int i = 0; i < cf.length(); i++){
 		try {
@@ -106,7 +107,7 @@ public static String hideString(String payload, String cover_filename)
 				curr_char_pls++;
 			}
 			else {
-				if(curr_byte2hide == payload_bytes.length){
+				if(curr_byte2hide == bytes_to_hide){
 					message_hidden = true;
 				}
 				if (message_hidden){
@@ -131,7 +132,7 @@ public static String hideString(String payload, String cover_filename)
 		coverim_mod.close();
 		coverim.close();
 	} catch(IOException e){
-		System.out.println("fuck off");
+		return "Fail: couldn't close off streams.";
 	}
 	
 	return null;
