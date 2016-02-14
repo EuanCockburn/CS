@@ -32,7 +32,18 @@ public class FileReader
 	 * a constant to hold the length of a byte
 	 */
 	private final int byteLength=8;
-	
+	/**
+	 * A constant to hold the number of bits used to store the size of the file extracted
+	 */
+	private final int sizeBitsLength=32;
+	/**
+	 * A constant to hold the number of bits used to store the extension of the file extracted
+	 */
+	private final int extBitsLength=64;
+	/**
+	 * A constant to hold the number of bits used to store the header size of a bmp
+	 */
+	private final int sizeHeaderLength=54;
 	/**
 	 * A file object to represent the file to be read
 	 */
@@ -41,7 +52,7 @@ public class FileReader
 	/**
 	 * List to hold the bits which represent the size of the file  
 	 */
-	private List<Integer> sbits;
+	private List<Integer> sbits = new ArrayList<Integer>();
 	/**
 	 * List to hold the bits representing the extension
 	 */
@@ -279,9 +290,22 @@ public class FileReader
 	 */
 	private void populateSizeBits()
 	{
-	
+		//get size of file
+		int file_size = getFileSize()/byteLength;
+		//get binary string of size
+		String binstr = Integer.toBinaryString(file_size);
+		//find how many zeroes are needed to pad
+		int zeroes_2_pad = sizeBitsLength - binstr.length();
+		//populate size bits ArrayList
+		for (int i = 0; i < sizeBitsLength; i++){
+			if (i < zeroes_2_pad){
+				sbits.add(0);
+			}
+			else {
+				sbits.add(Character.getNumericValue(binstr.charAt(i-zeroes_2_pad)));
+			}
+		}
 	}
-	
 	//TODO YOU MUST FILL IN THIS METHOD
 	/**
 	 * method to populate the list of bits relating to the extension of the payload
@@ -289,7 +313,23 @@ public class FileReader
 	 */
 	private void populateExtensionBits()
 	{
-
+		String ext = getExtension();
+		byte[] ext_bytes = ext.getBytes();
+		StringBuilder bin_string = new StringBuilder();
+		for (byte curr_b : ext_bytes) {
+			String curr_bs  = String.format("%08d",Integer.parseInt(Integer.toBinaryString(curr_b)));
+			bin_string.append(curr_bs);
+		}
+		int zeroes_2_pad = extBitsLength - bin_string.length();
+		//populate size bits ArrayList
+		for (int i = 0; i < extBitsLength; i++){
+			if (i < zeroes_2_pad){
+				extBits.add(0);
+			}
+			else {
+				extBits.add(Character.getNumericValue(bin_string.charAt(i-zeroes_2_pad)));
+			}
+		}
 	}
 	
 
