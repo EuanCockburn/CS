@@ -1,7 +1,4 @@
 import java.io.*;
-import java.util.*;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.nio.charset.StandardCharsets;
 
 public class stego
@@ -98,7 +95,8 @@ public String hideString(String payload, String cover_filename)
 	}
 
 	// Determine the size of the payload to be hidden
-	String payload_size = String.format("%032d", Integer.parseInt(Integer.toBinaryString(bytes_to_hide)));
+//	String payload_size = String.format("%032d", Integer.parseInt(Integer.toBinaryString(bytes_to_hide)));
+	String payload_size = left_pad_zeroes(bytes_to_hide, sizeBitsLength);
 	int curr_char_pls = 0;
 	for(int i = 0; i < cf.length(); i++){
 		try {
@@ -146,7 +144,7 @@ public String hideString(String payload, String cover_filename)
 //TODO you must write this method
 /**
 The extractString method should extract a string which has been hidden in the stegoimage
-@param the name of the stego image 
+@param stego_image - the name of the stego image
 @return a string which contains either the message which has been extracted or 'Fail' which indicates the extraction
 was unsuccessful
 */
@@ -243,7 +241,20 @@ public int bit_shifter(int byte_x,int bit_idx)
 	return ((byte_x) >> bit_idx)%2;
 }
 
+/*
+* help generate 32 bit left padded binary string
+* */
+public String left_pad_zeroes(int padee, int desired_len){
 
+	String bin_str_short = Integer.toBinaryString(padee);
+	int zeroes_to_pad = desired_len - bin_str_short.length();
+	StringBuilder sb = new StringBuilder();
+	for (int i = 0; i < zeroes_to_pad; i++){
+		sb.append("0");
+	}
+	sb.append(bin_str_short);
+	return sb.toString();
+}
 
 
 }
