@@ -8,7 +8,7 @@ public class Main extends stego{
 
         stego mySteg = new stego();
         //System.out.println(mySteg.hideString("This", "Test-image.bmp"));
-        String out_string = mySteg.hideFile("test.docx","Test-image.bmp");
+        String out_string = mySteg.hideFile("Test2-image.bmp","Test-image.bmp");
         System.out.println("Created : " + out_string);
         System.out.println(mySteg.extractFile(out_string));
         /*String out_string = mySteg.hideString("Budgie bird fun foil", "Test-image.bmp");
