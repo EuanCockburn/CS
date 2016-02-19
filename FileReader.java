@@ -305,6 +305,8 @@ public class FileReader
 				sbits.add(Character.getNumericValue(binstr.charAt(i-zeroes_2_pad)));
 			}
 		}
+		sBitsIt = sbits.iterator();
+
 	}
 	//TODO YOU MUST FILL IN THIS METHOD
 	/**
@@ -330,6 +332,7 @@ public class FileReader
 				extBits.add(Character.getNumericValue(bin_string.charAt(i-zeroes_2_pad)));
 			}
 		}
+		extBitsIt = extBits.iterator();
 	}
 	
 
