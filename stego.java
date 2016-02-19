@@ -66,8 +66,6 @@ public class stego
 		} catch (IOException e){
 			return "Fail: couldn't load cover image.";
 		}
-		//
-		FileOutputStream coverim_mod;
 
 		//set up the new file
 		File file_mod = null;
@@ -78,6 +76,7 @@ public class stego
 		}
 
 		//try to set up the output stream
+		FileOutputStream coverim_mod;
 		try {
 			coverim_mod = new FileOutputStream(file_mod);
 		} catch (IOException e){
@@ -140,17 +139,18 @@ public class stego
 	{
 		// Load the cover image on an input stream.
 		InputStream stegim;
-		int steg_image;
 		try {
 			stegim = new FileInputStream(stego_image);
 		} catch (IOException e){
 			return "Fail: couldn't load stego image.";
 		}
+
+		//Extracting the size of payload
 		String messageSize = "";
+		int steg_image;
 		for(int i = 0; i < (sizeHeaderLength + sizeBitsLength); i++){
 			try {
 				steg_image = stegim.read();
-
 				if (i >= sizeHeaderLength){
 					messageSize += (steg_image%2);
 				}
@@ -159,8 +159,8 @@ public class stego
 			}
 		}
 
-		int payLoadSize = Integer.parseInt(messageSize, 2);
-
+		//extraction of payload
+		int payLoadSize = Integer.parseInt(messageSize, 2);//get int rep of string
 		String message = "";
 		String binMessage = "";
 		for(int i = 0; i < payLoadSize * byteLength; i++){
@@ -190,7 +190,6 @@ public class stego
 	*/
 	public String hideFile(String file_payload, String cover_image)
 	{
-		//FileReader fr_covim = new FileReader(cover_image);
 		File cf = new File(cover_image);
 		FileReader fr_payload = new FileReader(file_payload);
 
@@ -208,9 +207,6 @@ public class stego
 			return "Fail: couldn't load cover image.";
 		}
 
-		//output stream to write modified file
-		FileOutputStream coverim_mod;
-
 		//try to set up the new file
 		File file_mod = null;
 		try {
@@ -220,23 +216,23 @@ public class stego
 		}
 
 		//try to set up the output stream
+		FileOutputStream coverim_mod;
 		try {
 			coverim_mod = new FileOutputStream(file_mod);
 		} catch (IOException e){
 			return "Fail: some issue creating output stream.";
 		}
 
+		//begin hiding the payload(file)
 		int bit_count = 0;
 		int curr_byte;
-		boolean file_hidden = false;
 		for (int i = 0; i < cf.length(); i++){
 			try {
 				curr_byte = coverim.read();
 			} catch (IOException e) {
 				return "Fail: issue reading the cover image";
 			}
-
-			//if still in header
+			//if still in header, write unmodified bytes
 			if (bit_count < sizeHeaderLength){
 				try {
 					coverim_mod.write(curr_byte);
@@ -245,7 +241,7 @@ public class stego
 				}
 
 			}
-			// if still in size write
+			// if still in size write, modify cover image with fileReader sBits
 			else if (bit_count < (sizeHeaderLength + sizeBitsLength)){
 				int curr_bit_to_hide = fr_payload.getNextBit();
 				try {
@@ -254,7 +250,7 @@ public class stego
 					return "Fail: couldn't write file size for payload";
 				}
 			}
-			// if still in extension write
+			// if still in extension write, modify cover image with fileReader extBits
 			else if (bit_count < (sizeHeaderLength + sizeBitsLength + extBitsLength)){
 				int curr_bit_to_hide = fr_payload.getNextBit();
 				try {
@@ -262,10 +258,10 @@ public class stego
 				} catch (IOException e) {
 					return "Fail: couldn't write file size for payload";
 				}
-
 			}
-			//if still in payload write
+			//if still in payload write, modify cover image with payload(file) bits
 			else {
+				//only modify if there are still bits of the payload to hide
 				if (fr_payload.hasNextBit()){
 					int curr_bit_to_hide = fr_payload.getNextBit();
 					try{
@@ -274,6 +270,7 @@ public class stego
 						return "Fail: couldn't hide file bit in image byte";
 					}
 				}
+				//otherwise, write bytes unmodified
 				else {
 					try{
 						coverim_mod.write(curr_byte);
@@ -281,9 +278,7 @@ public class stego
 						return "Fail: couldn't write current file byte";
 					}
 				}
-
 			}
-
 			//increment the bit count
 			bit_count++;
 		}
@@ -309,7 +304,6 @@ public class stego
 	*/
 	public String extractFile(String stego_image)
 	{
-		File si = new File(stego_image);
 		InputStream is_stego_img;
 		//try to setup input stream to read modified file
 		try {
@@ -318,15 +312,10 @@ public class stego
 			return "Fail: couldn't set up the input stream";
 		}
 
-		String hf_ext; //hidden file's extension
-		int hf_size; //hidden file's size
 
-		//output stream to write the hidden file
-		OutputStream os_hidden_file;
 		int curr_byte;
 		String extracted_messageSize = "";
 		String extracted_extension = "";
-
 		//for loop to extract size and extension of hidden file
 		for(int i = 0; i < (sizeHeaderLength + sizeBitsLength + extBitsLength); i++){
 			try {
@@ -344,14 +333,13 @@ public class stego
 			}
 		}
 
-		//process file size
-		hf_size = Integer.parseInt(extracted_messageSize, 2);
-		//process file extension
-		hf_ext = convert_bin_2_ext(extracted_extension);
-
-		String extracted_file_name;
+		//process file size & extension
+		int hf_size = Integer.parseInt(extracted_messageSize, 2); //hidden file's extension
+		String hf_ext = convert_bin_2_ext(extracted_extension); //hidden file's size
 
 		//Attempt to set up the File output stream
+		String extracted_file_name;
+		OutputStream os_hidden_file;
 		try {
 			extracted_file_name = gen_extract_file(hf_ext);
 			os_hidden_file = new FileOutputStream(extracted_file_name);
@@ -446,7 +434,7 @@ public class stego
 		int j = 0;
 		boolean file_exists = true;
 		String new_img_name;
-		//find file to available file to save to
+		//find available file to save to
 		while (file_exists){
 			new_img_name = "" + j + cover_image;
 			try{
@@ -459,7 +447,6 @@ public class stego
 				}
 			}catch(IOException e){
 				throw new IOException("Fail: couldn't create output file.");
-				//return "Fail: couldn't create output file.";
 			}
 
 		}
@@ -468,7 +455,7 @@ public class stego
 
 	private String gen_extract_file(String ext) throws IOException {
 		String file_base_name = "_Extracted" + ext;
-		File file_mod = null;
+		File file_mod;
 		int j = 0;
 		boolean file_exists = true;
 		String new_img_name = "";
