@@ -290,13 +290,13 @@ public class stego
 			bit_count++;
 		}
 
-		/*try{
+		try{
 			coverim_mod.flush();
 			coverim_mod.close();
 			coverim.close();
 		} catch(IOException e){
 			return "Fail: couldn't close off streams.";
-		}*/
+		}
 		return file_mod.getName();
 	}
 
@@ -310,8 +310,100 @@ public class stego
 	*/
 	public String extractFile(String stego_image)
 	{
+		File si = new File(stego_image);
+		InputStream is_stego_img;
+		//try to setup input stream to read modified file
+		try {
+			is_stego_img = new FileInputStream(stego_image);
+		} catch (FileNotFoundException e) {
+			return "Fail: couldn't set up the input stream";
+		}
 
-		return null;
+		String hf_ext = ""; //hidden file's extension
+		int hf_size; //hidden file's size
+
+		//output stream to write the hidden file
+		OutputStream os_hidden_file = null;
+		int curr_byte;
+		String extracted_messageSize = "";
+		String extracted_extension = "";
+
+		//for loop to extract size and extension of hidden file
+		for(int i = 0; i < (sizeHeaderLength + sizeBitsLength + extBitsLength); i++){
+			try {
+				curr_byte = is_stego_img.read();
+			} catch (IOException e) {
+				return "Fail: couldn't read from input stream";
+			}
+			//extraction of size
+			if (i >= sizeHeaderLength && i < (sizeHeaderLength + sizeBitsLength)){
+				extracted_messageSize += (curr_byte%2);
+			}
+			//extraction of extension
+			else if (i >= (sizeHeaderLength + sizeBitsLength)){
+				extracted_extension += (curr_byte%2);
+			}
+		}
+
+		//process file size
+		hf_size = Integer.parseInt(extracted_messageSize, 2);
+		//process file extension
+		hf_ext = convert_bin_2_ext(extracted_extension);
+
+		String extracted_file_name;
+
+		//Attempt to set up the File output stream
+		try {
+			extracted_file_name = gen_extract_file(hf_ext);
+			os_hidden_file = new FileOutputStream(extracted_file_name);
+		} catch (IOException e) {
+			return "Fail: unable to create FileOutputStream";
+		}
+
+		String curr_byte_string = "";
+		for (int i = 0; i < hf_size * byteLength; i++){
+			try {
+				curr_byte = is_stego_img.read();
+			} catch (IOException e) {
+				return "Fail: unable to read current file byte";
+			}
+			curr_byte_string = (curr_byte%2) + curr_byte_string;
+			if(curr_byte_string.length() == 8){
+				int curr_byte_int = Integer.parseInt(curr_byte_string, 2);
+				try {
+					os_hidden_file.write(curr_byte_int);
+				} catch (IOException e) {
+					return "Fail: unable to write extracted file byte";
+				}
+				curr_byte_string = "";
+			}
+		}
+		try{
+			os_hidden_file.flush();
+			os_hidden_file.close();
+			is_stego_img.close();
+		} catch(IOException e){
+			return "Fail: couldn't close off streams.";
+		}
+
+		return extracted_file_name;
+	}
+
+	//method for extracting the file extension from binary string
+	private String convert_bin_2_ext(String extracted_extension) {
+		String message = "";
+		String binMessage = "";
+		for(int i = 0; i < extBitsLength; i++){
+			binMessage += (extracted_extension.charAt(i)%2);// + binMessage;
+			if(binMessage.length() == 8){
+				int charcode = Integer.parseInt(binMessage, 2);
+				if(charcode != 0){
+					message += (char)charcode;
+				}
+				binMessage = "";
+			}
+		}
+		return message;
 	}
 
 	//TODO you must write this method
@@ -372,6 +464,30 @@ public class stego
 
 		}
 		return file_mod;
+	}
+
+	private String gen_extract_file(String ext) throws IOException {
+		String file_base_name = "_Extracted" + ext;
+		File file_mod = null;
+		int j = 0;
+		boolean file_exists = true;
+		String new_img_name = "";
+		//find file to available file to save to
+		while (file_exists){
+			new_img_name = "" + j + file_base_name;
+			try{
+				file_mod = new File(new_img_name);
+				if (!file_mod.exists()){
+					file_mod.createNewFile();
+					file_exists = false;
+				} else {
+					j++;
+				}
+			}catch(IOException e){
+				return "Fail: couldn't create output file.";
+			}
+		}
+		return new_img_name;
 	}
 
 }
