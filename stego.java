@@ -230,6 +230,7 @@ public class stego
 		//
 		int bit_count = 0;
 		int curr_byte;
+		boolean file_hidden = false;
 		for (int i = 0; i < cf.length(); i++){
 			try {
 				curr_byte = coverim.read();
@@ -254,11 +255,8 @@ public class stego
 				} catch (IOException e) {
 					return "Fail: couldn't write file size for payload";
 				}
-
-
-
 			}
-			// if still in size write
+			// if still in extension write
 			else if (bit_count < (sizeHeaderLength + sizeBitsLength + extBitsLength)){
 				int curr_bit_to_hide = fr_payload.getNextBit();
 				try {
@@ -268,13 +266,24 @@ public class stego
 				}
 
 			}
+			//if still in payload write
 			else {
-				int curr_bit_to_hide = fr_payload.getNextBit();
-				try{
-					coverim_mod.write(swapLsb(curr_bit_to_hide, curr_byte));
-				}catch (IOException e){
-					return "Fail: couldn't hide file bit in image byte";
+				if (fr_payload.hasNextBit()){
+					int curr_bit_to_hide = fr_payload.getNextBit();
+					try{
+						coverim_mod.write(swapLsb(curr_bit_to_hide, curr_byte));
+					}catch (IOException e){
+						return "Fail: couldn't hide file bit in image byte";
+					}
 				}
+				else {
+					try{
+						coverim_mod.write(curr_byte);
+					}catch (IOException e){
+						return "Fail: couldn't write current file byte";
+					}
+				}
+
 			}
 
 			//increment the bit count
