@@ -72,7 +72,7 @@ public class stego
 		try {
 			file_mod = gen_mod_file(cover_filename);
 		} catch (IOException e) {
-			e.printStackTrace();
+			return "Fail: couldn't create file for output.";
 		}
 
 		//try to set up the output stream
@@ -212,7 +212,7 @@ public class stego
 		try {
 			file_mod = gen_mod_file(cover_image);
 		} catch (IOException e) {
-			e.printStackTrace();
+			return "Fail: couldn't set up output file.";
 		}
 
 		//try to set up the output stream
@@ -220,7 +220,7 @@ public class stego
 		try {
 			coverim_mod = new FileOutputStream(file_mod);
 		} catch (IOException e){
-			return "Fail: some issue creating output stream.";
+			return "Fail: issue creating output stream.";
 		}
 
 		//begin hiding the payload(file)
@@ -459,7 +459,7 @@ public class stego
 		int j = 0;
 		boolean file_exists = true;
 		String new_img_name = "";
-		//find file to available file to save to
+		//find available file to save to
 		while (file_exists){
 			new_img_name = "" + j + file_base_name;
 			try{
